@@ -8,8 +8,12 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
         body { background: #fff; color: #333; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        #auth-screen { position: fixed; top:0; left:0; width:100vw; height:100vh; background: #f4f7f9; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 360px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #auth-screen { position: fixed; top:0; left:0; width:100vw; height:100vh; background: #0f1419; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 360px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .auth-logo { width: 64px; height: 64px; border-radius: 16px; display: block; margin: 0 auto 12px; object-fit: cover; }
+        .auth-link { display: block; text-align: center; color: #00add7; font-size: 0.85rem; margin-top: 12px; cursor: pointer; text-decoration: underline; background: none; border: none; width: 100%; }
+        .auth-section { display: none; }
+        .auth-section.active { display: block; }
         .tab-content { flex: 1; display: none; position: relative; overflow-y: auto; background: #f4f7f9; height: calc(100vh - 65px); }
         .tab-content.active { display: block; }
         #home-tab { background: #000; overflow-y: scroll; scroll-snap-type: y mandatory; height: 100%; }
@@ -32,13 +36,54 @@
 <body>
     <div id="auth-screen">
         <div class="auth-card">
+            <img src="icon.png" alt="VienTo" class="auth-logo">
             <h3 style="text-align:center; color:#00add7; margin-bottom:20px; font-size:1.4rem;">VienTo - Ingreso Seguro</h3>
-            <input type="email" id="auth-email" class="viento-input" placeholder="Tu correo electrónico...">
-            <input type="password" id="auth-password" class="viento-input" placeholder="Tu contraseña...">
-            <button class="btn-viento" onclick="handleLogin()">Ingresar</button>
-            <button class="btn-viento" style="background:#e4f0f6; color:#333;" onclick="handleSignUp()">Registrarse</button>
+
+            <!-- LOGIN E REGISTRAZIONE -->
+            <div id="view-login" class="auth-section active">
+                <input type="email" id="auth-email" class="viento-input" placeholder="Tu correo electrónico...">
+                <input type="password" id="auth-password" class="viento-input" placeholder="Tu contraseña...">
+                <button class="btn-viento" onclick="handleLogin()">Ingresar</button>
+                <button class="btn-viento" style="background:#e4f0f6; color:#333;" onclick="handleSignUp()">Registrarse</button>
+                <button class="auth-link" onclick="showAuthView('view-otp-req')">Entrar con Código OTP (6 dígitos)</button>
+                <button class="auth-link" onclick="showAuthView('view-reset-req')">¿Olvidaste tu contraseña? (Restore)</button>
+            </div>
+
+            <!-- RICHIESTA CODICE OTP -->
+            <div id="view-otp-req" class="auth-section">
+                <p style="font-size:0.85rem; color:#555; margin-bottom:10px; text-align:center;">Te enviaremos un código de 6 dígitos a tu correo.</p>
+                <input type="email" id="otp-email" class="viento-input" placeholder="Tu correo electrónico...">
+                <button class="btn-viento" onclick="sendOtpCode()">Enviar Código OTP</button>
+                <button class="auth-link" onclick="showAuthView('view-login')">Volver al inicio</button>
+            </div>
+
+            <!-- VERIFICA CODICE OTP -->
+            <div id="view-otp-verify" class="auth-section">
+                <p style="font-size:0.85rem; color:#555; margin-bottom:10px; text-align:center;">Ingresa el código de 6 dígitos recibido en tu correo.</p>
+                <input type="text" id="otp-token" class="viento-input" placeholder="Código de 6 dígitos..." maxlength="6" style="text-align:center; letter-spacing:4px; font-weight:bold;">
+                <button class="btn-viento" onclick="verifyOtpCode()">Verificar y Entrar</button>
+                <button class="auth-link" onclick="showAuthView('view-login')">Cancelar</button>
+            </div>
+
+            <!-- RESTORE PASSWORD: INVIO CODICE -->
+            <div id="view-reset-req" class="auth-section">
+                <p style="font-size:0.85rem; color:#555; margin-bottom:10px; text-align:center;">Ingresa tu correo para recibir el código de recuperación.</p>
+                <input type="email" id="reset-email" class="viento-input" placeholder="Tu correo electrónico...">
+                <button class="btn-viento" onclick="sendResetCode()">Enviar Código de Recuperación</button>
+                <button class="auth-link" onclick="showAuthView('view-login')">Volver al inicio</button>
+            </div>
+
+            <!-- RESTORE PASSWORD: NUOVA PASSWORD -->
+            <div id="view-reset-confirm" class="auth-section">
+                <p style="font-size:0.85rem; color:#555; margin-bottom:10px; text-align:center;">Ingresa el código OTP y tu nueva contraseña.</p>
+                <input type="text" id="reset-token" class="viento-input" placeholder="Código de 6 dígitos..." maxlength="6" style="text-align:center; letter-spacing:4px; font-weight:bold;">
+                <input type="password" id="reset-new-password" class="viento-input" placeholder="Nueva contraseña (mín. 6 caracteres)...">
+                <button class="btn-viento" onclick="confirmPasswordReset()">Cambiar Contraseña</button>
+                <button class="auth-link" onclick="showAuthView('view-login')">Cancelar</button>
+            </div>
         </div>
     </div>
+
     <div id="home-tab" class="tab-content active">
         <div class="video-slide">
             <div class="video-placeholder">
@@ -55,9 +100,11 @@
             </div>
         </div>
     </div>
+
     <div id="search-tab" class="tab-content"><div style="padding:20px;">Buscador Descentralizado</div></div>
     <div id="upload-tab" class="tab-content"><div style="padding:20px;">Subir nuevo archivo al servidor</div></div>
     <div id="chat-tab" class="tab-content"><div style="padding:20px;">Chats cifrados a nivel de cuenta</div></div>
+
     <div id="profile-tab" class="tab-content">
         <div style="padding:20px; background:white; text-align:center; border-bottom:1px solid #eee;">
             <span id="role-badge" style="background:#00add7; color:white; padding:4px 10px; border-radius:10px; font-size:0.75rem; font-weight:bold;">USER</span>
@@ -70,6 +117,7 @@
             <div class="report-item"><b>ID: rep_9841</b><p>Contenido bajo investigación por propaganda colonialista.</p></div>
         </div>
     </div>
+
     <nav class="nav-bar" id="main-nav-bar">
         <button class="nav-item active" onclick="switchTab('home')">🏠<br>Inicio</button>
         <button class="nav-item" onclick="switchTab('search')">🔍<br>Buscar</button>
@@ -77,53 +125,6 @@
         <button class="nav-item" onclick="switchTab('chat')">💬<br>Chat</button>
         <button class="nav-item" onclick="switchTab('profile')">👤<br>Perfil</button>
     </nav>
+
     <script>
         const SUPABASE_URL = "https://rqqeagjxgtpoypavzpds.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_awIlyqKMt7XGTapFfgqy2Q_lP4guXt2";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        async function handleLogin() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) { alert("Error: " + error.message); return; }
-            checkSession();
-        }
-        async function handleSignUp() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) { alert("Error: " + error.message); return; }
-            alert("¡Registro completado!");
-            checkSession();
-        }
-        async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-nav-bar').style.display = 'flex';
-                document.getElementById('profile-email').innerText = session.user.email;
-                let { data: profile } = await supabase.from('viento_profiles').select('*').eq('id', session.user.id).single();
-                if (profile) {
-                    document.getElementById('display-handle').innerText = profile.handle;
-                    document.getElementById('profile-username').innerText = profile.username;
-                    document.getElementById('role-badge').innerText = profile.role;
-                    if (profile.role === 'ADMIN') {
-                        document.getElementById('role-badge').style.background = '#8b1e22';
-                        document.getElementById('panel-admin').classList.add('active');
-                    }
-                }
-            } else {
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('main-nav-bar').style.display = 'none';
-            }
-        }
-        async function handleSignOut() { await supabase.auth.signOut(); location.reload(); }
-        function switchTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(id + '-tab').classList.add('active');
-        }
-        checkSession();
-    </script>
-</body>
-</html>
