@@ -126,3 +126,39 @@ jobs:
                           <button class="sidebar-btn" onclick="alert('Denuncia Enviada')">🚩</button>
                       </div>
                       <div class="video-info-box">
+          <script>
+              const SUPABASE_URL = "INCOLLA_QUI_IL_TUO_URL_REALE_DI_SUPABASE";
+              const SUPABASE_ANON_KEY = "INCOLLA_QUI_LA_TUA_CHIAVE_ANON_PUBLIC_REALE";
+          </script>
+          <nav class="nav-bar">
+              <button class="nav-item active" onclick="switchTab('home')">🏠<br>Inicio</button>
+              <button class="nav-item" onclick="switchTab('search')">🔍<br>Buscar</button>
+              <button class="nav-item-center" onclick="switchTab('upload')">+</button>
+              <button class="nav-item" onclick="switchTab('chat')">💬<br>Chat</button>
+              <button class="nav-item" onclick="switchTab('profile')">👤<br>Perfil</button>
+          </nav>
+          <script>
+              function switchTab(id) {
+                  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                  document.getElementById(id + '-tab').classList.add('active');
+              }
+          </script>
+      </body>
+      </html>
+      EOF
+
+      # 4. Compila l'applicazione nativa per smartphone Android
+      cordova platform add android@12.0.0 --no-telemetry
+      cordova build android --verbose --no-telemetry
+      
+      # 5. Sposta l'eseguibile pronto nella cartella di download
+      cd ..
+      mkdir -p output
+      cp temp_project/platforms/android/app/build/outputs/apk/debug/app-debug.apk output/viento.apk
+
+  - name: Upload Finished APK Artifact
+    uses: actions/upload-artifact@v4
+    with:
+      name: viento-application-package
+      path: output/viento.apk
+      if-no-files-found: error
