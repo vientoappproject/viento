@@ -127,8 +127,8 @@ jobs:
                       </div>
                       <div class="video-info-box">
           <script>
-              const SUPABASE_URL = "INCOLLA_QUI_IL_TUO_URL_REALE_DI_SUPABASE";
-              const SUPABASE_ANON_KEY = "INCOLLA_QUI_LA_TUA_CHIAVE_ANON_PUBLIC_REALE";
+              const SUPABASE_URL = "https://rqqeagjxgtpoypavzpds.supabase.co";
+              const SUPABASE_ANON_KEY = "sb_publishable_awIlyqKMt7XGTapFfgqy2Q_lP4guXt2";
           </script>
           <nav class="nav-bar">
               <button class="nav-item active" onclick="switchTab('home')">🏠<br>Inicio</button>
