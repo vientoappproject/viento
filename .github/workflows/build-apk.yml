@@ -17,9 +17,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
@@ -27,6 +24,7 @@ jobs:
 
       - name: Build Cordova APK
         run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           npm install -g cordova
           cordova create app com.vientoappproject.app VienTo --no-telemetry
           cp -r www/* app/www/
