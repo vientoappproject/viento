@@ -104,6 +104,15 @@ jobs:
               </style>
           </head>
           <body>
+              <!-- ======================================================= -->
+              <!--  SEZIONE CRUCIALE: INCOLLA QUI SOTTO LE CHIAVI REALI     -->
+              <!-- ======================================================= -->
+              <script>
+                  const SUPABASE_URL = "https://rqqeagjxgtpoypavzpds.supabase.co";
+                  const SUPABASE_ANON_KEY = "sb_publishable_awIlyqKMt7XGTapFfgqy2Q_lP4guXt2";
+              </script>
+              <!-- ======================================================= -->
+              
               <div id="home-tab" class="tab-content active">
                   <div class="top-brand">VienTo</div>
                   <div class="top-mute">🔊</div>
@@ -119,47 +128,3 @@ jobs:
                       <div class="video-placeholder">
                           <span style="font-size: 4rem;">🐈‍⬛</span>
                           <p>[ Feed de Video Independiente ]</p>
-                      </div>
-                      <div class="video-sidebar">
-                          <button class="sidebar-btn" onclick="alert('Like Registrato!')">❤️<span>0</span></button>
-                          <button class="sidebar-btn" onclick="alert('Comentarios Seguros')">💬<span>0</span></button>
-                          <button class="sidebar-btn" onclick="alert('Denuncia Enviada')">🚩</button>
-                      </div>
-                      <div class="video-info-box">
-          <script>
-              const SUPABASE_URL = "https://rqqeagjxgtpoypavzpds.supabase.co";
-              const SUPABASE_ANON_KEY = "sb_publishable_awIlyqKMt7XGTapFfgqy2Q_lP4guXt2";
-          </script>
-          <nav class="nav-bar">
-              <button class="nav-item active" onclick="switchTab('home')">🏠<br>Inicio</button>
-              <button class="nav-item" onclick="switchTab('search')">🔍<br>Buscar</button>
-              <button class="nav-item-center" onclick="switchTab('upload')">+</button>
-              <button class="nav-item" onclick="switchTab('chat')">💬<br>Chat</button>
-              <button class="nav-item" onclick="switchTab('profile')">👤<br>Perfil</button>
-139:           </nav>
-140:           <script>
-141:               function switchTab(id) {
-142:                   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-143:                   document.getElementById(id + '-tab').classList.add('active');
-144:               }
-145:           </script>
-146:       </body>
-147:       </html>
-148:       EOF
-149: 
-150:       # 4. Compila l'applicazione nativa per smartphone Android
-151:       cordova platform add android@12.0.0 --no-telemetry
-152:       cordova build android --verbose --no-telemetry
-153:       
-154:       # 5. Sposta l'eseguibile pronto nella cartella di download
-155:       cd ..
-156:       mkdir -p output
-157:       cp temp_project/platforms/android/app/build/outputs/apk/debug/app-debug.apk output/viento.apk
-158: 
-159:   - name: Upload Finished APK Artifact
-160:     uses: actions/upload-artifact@v4
-161:     with:
-162:       name: viento-application-package
-163:       path: output/viento.apk
-164:       if-no-files-found: error
-
