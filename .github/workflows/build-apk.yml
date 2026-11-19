@@ -24,9 +24,11 @@ jobs:
 
       - name: Generate and Compile App
         run: |
-          cordova create temp_project com.vientoappproject.app VienTo
-          cd temp_project
+          # 1. Crea il progetto nativo senza telemetry
+          cordova create app com.vientoappproject.app VienTo --no-telemetry
+          cd app
           
+          # 2. Inietta il passaporto hardware direttamente nel server
           cat << 'EOF' > config.xml
           <?xml version='1.0' encoding='utf-8'?>
           <widget id="com.vientoappproject.app" version="1.0.0" xmlns="http://w3.org" xmlns:cdv="http://apache.org">
@@ -45,6 +47,7 @@ jobs:
           </widget>
           EOF
 
+          # 3. Inietta l'interfaccia grafica con il Login e le tue credenziali di Supabase
           cat << 'EOF' > www/index.html
           <!DOCTYPE html>
           <html lang="es">
@@ -78,7 +81,6 @@ jobs:
               </style>
           </head>
           <body>
-
               <div id="auth-screen">
                   <div class="auth-card">
                       <h3 style="text-align:center; color:#00add7; margin-bottom:20px; font-size:1.4rem;">VienTo - Ingreso Seguro</h3>
@@ -88,7 +90,6 @@ jobs:
                       <button class="btn-viento" style="background:#e4f0f6; color:#333;" onclick="handleSignUp()">Registrarse</button>
                   </div>
               </div>
-
               <div id="home-tab" class="tab-content active">
                   <div class="video-slide">
                       <div class="video-placeholder">
@@ -105,11 +106,9 @@ jobs:
                       </div>
                   </div>
               </div>
-
               <div id="search-tab" class="tab-content"><div style="padding:20px;">Buscador Descentralizado</div></div>
               <div id="upload-tab" class="tab-content"><div style="padding:20px;">Subir nuevo archivo al servidor</div></div>
               <div id="chat-tab" class="tab-content"><div style="padding:20px;">Chats cifrados a nivel de cuenta</div></div>
-              
               <div id="profile-tab" class="tab-content">
                   <div style="padding:20px; background:white; text-align:center; border-bottom:1px solid #eee;">
                       <span id="role-badge" style="background:#00add7; color:white; padding:4px 10px; border-radius:10px; font-size:0.75rem; font-weight:bold;">USER</span>
@@ -117,13 +116,11 @@ jobs:
                       <p id="profile-email" style="color:#666; font-size:0.85rem;"></p>
                       <button class="btn-viento" style="background:#8b1e22; max-width:150px; padding:8px; font-size:0.85rem;" onclick="handleSignOut()">Cerrar sesión</button>
                   </div>
-                  
                   <div id="panel-admin" class="settings-panel">
                       <h4 style="color:#8b1e22; margin-bottom:10px;">🛡️ Central de Moderación Suprema</h4>
                       <div class="report-item"><b>ID: rep_9841</b><p>Contenido bajo investigación por propaganda colonialista.</p></div>
                   </div>
               </div>
-
               <nav class="nav-bar" id="main-nav-bar">
                   <button class="nav-item active" onclick="switchTab('home')">🏠<br>Inicio</button>
                   <button class="nav-item" onclick="switchTab('search')">🔍<br>Buscar</button>
@@ -131,13 +128,10 @@ jobs:
                   <button class="nav-item" onclick="switchTab('chat')">💬<br>Chat</button>
                   <button class="nav-item" onclick="switchTab('profile')">👤<br>Perfil</button>
               </nav>
-
               <script>
-                  const SUPABASE_URL = "https://rqqeagjxgtpoypavzpds.supabase.co" ;
+                  const SUPABASE_URL = "https://rqqeagjxgtpoypavzpds.supabase.co";
                   const SUPABASE_ANON_KEY = "sb_publishable_awIlyqKMt7XGTapFfgqy2Q_lP4guXt2";
-                  
                   const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
                   async function handleLogin() {
                       const email = document.getElementById('auth-email').value;
                       const password = document.getElementById('auth-password').value;
@@ -145,10 +139,6 @@ jobs:
                       if (error) { alert("Error: " + error.message); return; }
                       checkSession();
                   }
-
                   async function handleSignUp() {
                       const email = document.getElementById('auth-email').value;
                       const password = document.getElementById('auth-password').value;
-                      const { data, error } = await supabase.auth.signUp({ email, password });
-                      if (error) { alert("Error: " + error.message); return; }
-                      alert("¡Registro completado!");
