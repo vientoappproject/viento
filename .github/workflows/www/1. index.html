@@ -3,115 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>VienTo - La Red Social Sana</title>
+    <title>VienTo</title>
+    <script src="https://jsdelivr.net"></script>
     <style>
-        /* --- DESIGN SISTEMA NATIVO VIENTO --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
         body { background: #fff; color: #333; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        
-        /* CONTENITORE SCHEDE */
+        #auth-screen { position: fixed; top:0; left:0; width:100vw; height:100vh; background: #f4f7f9; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 360px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .tab-content { flex: 1; display: none; position: relative; overflow-y: auto; background: #f4f7f9; height: calc(100vh - 65px); }
         .tab-content.active { display: block; }
-
-        /* SCHEDA 1: HOME FEED VIDEO (TIKTOK LO-FI) */
-        #home-tab { background: #000; overflow-y: scroll; scroll-snap-type: y mandatory; height: 100%; scroll-behavior: smooth; }
+        #home-tab { background: #000; overflow-y: scroll; scroll-snap-type: y mandatory; height: 100%; }
         .video-slide { width: 100vw; height: 100%; scroll-snap-align: start; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
         .video-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; background: linear-gradient(180deg, #111, #000); }
-        
-        /* INTERFACCIA SOVRAPPOSTA HOME */
-        .top-brand { position: absolute; top: 15px; left: 20px; color: #fff; font-weight: bold; font-size: 1.2rem; z-index: 10; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
-        .top-mute { position: absolute; top: 15px; right: 20px; background: rgba(0,0,0,0.4); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 10; }
-        
-        .video-sidebar { position: absolute; right: 15px; bottom: 40px; display: flex; flex-direction: column; gap: 15px; align-items: center; z-index: 10; }
+        .video-sidebar { position: absolute; right: 15px; bottom: 40px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
         .sidebar-btn { background: none; border: none; color: white; display: flex; flex-direction: column; align-items: center; cursor: pointer; font-size: 0.75rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
-        .sidebar-btn span { margin-top: 2px; }
-        
-        .video-info-box { position: absolute; bottom: 20px; left: 15px; right: 80px; color: white; z-index: 10; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); }
-        .user-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #fff; background: #444; }
-        .video-tag { color: #00bcd4; font-weight: 500; }
-
-        /* POLICY POPUP INIZIALE */
-        .policy-popup { position: absolute; bottom: 80px; left: 5%; width: 90%; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 100; }
-        .popup-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-primary { background: #00add7; color: white; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-secondary { background: #e4f0f6; color: #333; border: none; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; flex: 1; }
-
-        /* SCHEDA 2: CERCA */
-        .search-header { background: white; padding: 15px; border-bottom: 1px solid #cbdce6; position: sticky; top: 0; z-index: 10; }
-        .search-bar { background: #f1f5f8; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; }
-        .search-bar input { background: none; border: none; width: 100%; outline: none; font-size: 0.95rem; }
-        .user-list { padding: 10px 15px; background: white; }
-        .user-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f8; }
-        .user-item-avatar { width: 40px; height: 40px; border-radius: 50%; background: #00add7; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        /* SCHEDA 3: CARICA VIDEO (+) */
-        .upload-wrapper { padding: 20px; max-width: 500px; margin: 0 auto; background: white; min-height: 100%; }
-        .upload-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; }
-        .dropzone { border: 2px dashed #cbdce6; border-radius: 12px; padding: 30px; text-align: center; color: #666; margin-bottom: 15px; cursor: pointer; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { font-size: 0.85rem; color: #666; display: block; margin-bottom: 5px; }
-        .input-group textarea, .input-group input { width: 100%; padding: 12px; border: 1px solid #cbdce6; border-radius: 8px; background: #f8fafc; outline: none; }
-        .category-box { display: flex; gap: 10px; }
-        .cat-btn { flex: 1; border: 1px solid #cbdce6; border-radius: 8px; padding: 10px; background: #fff; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
-        .cat-btn.active { background: #00add7; color: white; border-color: #00add7; }
-
-        /* SCHEDA 4: CHAT */
-        .chat-header { background: white; padding: 15px; font-weight: bold; border-bottom: 1px solid #e4f0f6; }
-        .chat-item { display: flex; align-items: center; gap: 12px; padding: 15px; border-bottom: 1px solid #f1f5f8; background: white; }
-
-        /* SCHEDA 5: PROFILO & CONFIGURAZIONE IMPOSTAZIONI AD AVANZATO */
-        .profile-container { background: white; min-height: 100%; padding-bottom: 30px; }
-        .profile-header { padding: 20px 15px; text-align: center; border-bottom: 1px solid #e4f0f6; position: relative; }
-        .admin-badge { position: absolute; top: 15px; right: 15px; background: #8b1e22; color: white; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
-        .profile-pic { width: 75px; height: 75px; border-radius: 50%; background: #444; margin: 0 auto 10px; border: 2px solid #00add7; }
-        .profile-stats { display: flex; justify-content: center; gap: 30px; margin: 15px 0; font-size: 0.85rem; }
-        .stat-num { font-weight: bold; display: block; font-size: 1.1rem; }
-        
-        /* SEZIONE MULTI-SCHEDA AMMINISTRATIVA (STATISTICHE, CRONOLOGIA, BRANI, MODERAZIONE) */
-        .settings-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #e4f0f6; }
-        .set-nav-btn { border: none; background: none; padding: 10px 2px; font-size: 0.7rem; font-weight: bold; color: #555; cursor: pointer; text-align: center; border-radius: 6px; }
-        .set-nav-btn.active { background: #00add7; color: white; }
+        .video-info-box { position: absolute; bottom: 20px; left: 15px; right: 80px; color: white; z-index: 10; }
+        .btn-viento { background: #00add7; color: white; border: none; padding: 12px; width: 100%; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .viento-input { width: 100%; padding: 12px; border: 1px solid #cbdce6; border-radius: 8px; margin-bottom: 12px; outline: none; background: #f8fafc; }
+        .nav-bar { height: 65px; background: white; border-top: 1px solid #cbdce6; display: none; align-items: center; justify-content: space-around; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: #666; font-size: 0.7rem; width: 60px; }
+        .nav-item.active { color: #00add7; font-weight: bold; }
+        .nav-item-center { background: #00add7; color: white; border-radius: 12px; width: 46px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; }
         .settings-panel { padding: 15px; display: none; }
         .settings-panel.active { display: block; }
-
-        /* ALGORITMO ETICO VISIVO */
-        .algo-box { background: #f8fafc; border: 1px solid #cbdce6; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .algo-title { font-size: 0.85rem; font-weight: bold; color: #00add7; margin-bottom: 10px; }
-        .algo-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
-
-        /* AREA MUSICA & SEGNALAZIONI CONTROINFORMAZIONE */
-        .music-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border: 1px solid #cbdce6; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; }
-        .report-item { background: #fff; border: 1px solid #cbdce6; border-radius: 10px; padding: 12px; margin-bottom: 10px; font-size: 0.85rem; border-left: 4px solid #8b1e22; }
-        .report-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
-        
-        /* MODAL POPUP EXTRA (CARICA BRANO) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .viento-modal { background: white; border-radius: 16px; width: 90%; max-width: 380px; padding: 20px; }
-
-        /* BARRA DI NAVIGAZIONE INFERIORE NATIVA */
-        .nav-bar { height: 65px; background: white; border-top: 1px solid #cbdce6; display: flex; align-items: center; justify-content: space-around; z-index: 1000; position: relative; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: #666; font-size: 0.7rem; cursor: pointer; width: 60px; font-weight: 500; }
-        .nav-item.active { color: #00add7; font-weight: bold; }
-        .nav-item-center { background: #00add7; color: white; border-radius: 12px; width: 46px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; border: none; cursor: pointer; }
+        .report-item { background: #fff; border: 1px solid #cbdce6; border-radius: 10px; padding: 12px; border-left: 4px solid #8b1e22; }
     </style>
 </head>
 <body>
-
-    <!-- SCHEDA 1: HOME FEED -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h3 style="text-align:center; color:#00add7; margin-bottom:20px; font-size:1.4rem;">VienTo - Ingreso Seguro</h3>
+            <input type="email" id="auth-email" class="viento-input" placeholder="Tu correo electrónico...">
+            <input type="password" id="auth-password" class="viento-input" placeholder="Tu contraseña...">
+            <button class="btn-viento" onclick="handleLogin()">Ingresar</button>
+            <button class="btn-viento" style="background:#e4f0f6; color:#333;" onclick="handleSignUp()">Registrarse</button>
+        </div>
+    </div>
     <div id="home-tab" class="tab-content active">
-        <div class="top-brand">VienTo</div>
-        <div class="top-mute" onclick="alert('Volumen configurato')">🔊</div>
-        
-        <div class="policy-popup" id="welcome-policy">
-            <h4 style="display:flex; align-items:center; gap:6px;">🛡️ Bienvenido a VienTo</h4>
-            <p style="font-size:0.8rem; color:#666; margin-top:6px; line-height:1.4;">Antes de empezar, lee la <b>Política de la Comunidad</b>. Prohibida toda propaganda sionista, nazi-fascista o colonialista. Moderación autónoma y ética.</p>
-            <div class="popup-buttons">
-                <button class="btn-primary" onclick="alert('Manifiesto de la Comuna aceptado')">Leer Política</button>
-                <button class="btn-secondary" onclick="document.getElementById('welcome-policy').style.display='none'">Ahora no</button>
+        <div class="video-slide">
+            <div class="video-placeholder">
+                <span style="font-size: 4rem;">🐈‍⬛</span>
+                <p>[ Feed de Video Conectado a São Paulo ]</p>
+            </div>
+            <div class="video-sidebar">
+                <button class="sidebar-btn" onclick="alert('Like guardado')">❤️<span>0</span></button>
+                <button class="sidebar-btn" onclick="alert('Denuncia ética enviada')">🚩</button>
+            </div>
+            <div class="video-info-box">
+                <b id="display-handle">@cargando_perfil</b>
+                <p>Contenido libre e independiente.</p>
             </div>
         </div>
+    </div>
+    <div id="search-tab" class="tab-content"><div style="padding:20px;">Buscador Descentralizado</div></div>
+    <div id="upload-tab" class="tab-content"><div style="padding:20px;">Subir nuevo archivo al servidor</div></div>
+    <div id="chat-tab" class="tab-content"><div style="padding:20px;">Chats cifrados a nivel de cuenta</div></div>
+    <div id="profile-tab" class="tab-content">
+        <div style="padding:20px; background:white; text-align:center; border-bottom:1px solid #eee;">
+            <span id="role-badge" style="background:#00add7; color:white; padding:4px 10px; border-radius:10px; font-size:0.75rem; font-weight:bold;">USER</span>
+            <h3 id="profile-username" style="margin-top:10px;">Usuario VienTo</h3>
+            <p id="profile-email" style="color:#666; font-size:0.85rem;"></p>
+            <button class="btn-viento" style="background:#8b1e22; max-width:150px; padding:8px; font-size:0.85rem;" onclick="handleSignOut()">Cerrar sesión</button>
+        </div>
+        <div id="panel-admin" class="settings-panel">
+            <h4 style="color:#8b1e22; margin-bottom:10px;">🛡️ Central de Moderación Suprema</h4>
+            <div class="report-item"><b>ID: rep_9841</b><p>Contenido bajo investigación por propaganda colonialista.</p></div>
+        </div>
+    </div>
+    <nav class="nav-bar" id="main-nav-bar">
+        <button class="nav-item active" onclick="switchTab('home')">🏠<br>Inicio</button>
+        <button class="nav-item" onclick="switchTab('search')">🔍<br>Buscar</button>
+        <button class="nav-item-center" onclick="switchTab('upload')">+</button>
+        <button class="nav-item" onclick="switchTab('chat')">💬<br>Chat</button>
+        <button class="nav-item" onclick="switchTab('profile')">👤<br>Perfil</button>
+    </nav>
+    <script>
+        const SUPABASE_URL = "https://rqqeagjxgtpoypavzpds.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_awIlyqKMt7XGTapFfgqy2Q_lP4guXt2";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        <div class="video-slide">
-            <div class="video-placeholder" onclick="alert('Play/Pausa Video Autónomo')">
-                <span style="font-size: 4rem;">🐈‍⬛</span>
+        async function handleLogin() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) { alert("Error: " + error.message); return; }
+            checkSession();
+        }
+        async function handleSignUp() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) { alert("Error: " + error.message); return; }
+            alert("¡Registro completado!");
+            checkSession();
+        }
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-nav-bar').style.display = 'flex';
+                document.getElementById('profile-email').innerText = session.user.email;
+                let { data: profile } = await supabase.from('viento_profiles').select('*').eq('id', session.user.id).single();
+                if (profile) {
+                    document.getElementById('display-handle').innerText = profile.handle;
+                    document.getElementById('profile-username').innerText = profile.username;
+                    document.getElementById('role-badge').innerText = profile.role;
+                    if (profile.role === 'ADMIN') {
+                        document.getElementById('role-badge').style.background = '#8b1e22';
+                        document.getElementById('panel-admin').classList.add('active');
+                    }
+                }
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('main-nav-bar').style.display = 'none';
+            }
+        }
+        async function handleSignOut() { await supabase.auth.signOut(); location.reload(); }
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id + '-tab').classList.add('active');
+        }
+        checkSession();
+    </script>
+</body>
+</html>
