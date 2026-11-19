@@ -33,13 +33,17 @@ jobs:
           cordova create app com.vientoappproject.app VienTo --no-telemetry
           cp -r www/* app/www/
           cd app
+
+          # Rinomina automaticamente qualsiasi immagine caricata in www/ in icon.png
           IMG_FILE=$(ls www/*.{png,jpg,jpeg,webp} 2>/dev/null | head -n 1)
           if [ -n "$IMG_FILE" ] && [ "$IMG_FILE" != "www/icon.png" ]; then
             cp "$IMG_FILE" www/icon.png
           fi
+
+          # Genera config.xml con permessi Android per fotocamera, audio e file
           cat << 'EOF' > config.xml
           <?xml version='1.0' encoding='utf-8'?>
-          <widget id="com.vientoappproject.app" version="1.0.0" xmlns="http://w3.org" xmlns:cdv="http://apache.org">
+          <widget id="com.vientoappproject.app" version="1.0.0" xmlns="http://w3.org" xmlns:cdv="http://apache.org" xmlns:android="http://android.com">
               <name>VienTo</name>
               <description>La Red Social Sana</description>
               <content src="index.html" />
@@ -50,10 +54,29 @@ jobs:
               <preference name="hostname" value="localhost" />
               <preference name="LoadUrlTimeoutValue" value="70000" />
               <preference name="Orientation" value="portrait" />
+              <platform name="android">
+                  <config-file target="AndroidManifest.xml" parent="/*">
+                      <uses-permission android:name="android.permission.CAMERA" />
+                      <uses-permission android:name="android.permission.RECORD_AUDIO" />
+                      <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+                      <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+                      <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+                      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+                  </config-file>
+              </platform>
           </widget>
           EOF
+
+          # Installa i plugin compatibili con AndroidX prima di aggiungere la piattaforma
+          cordova plugin add cordova-plugin-camera@8.0.0 --no-telemetry
+          cordova plugin add cordova-plugin-media --no-telemetry
+          cordova plugin add cordova-plugin-file --no-telemetry
+
           cordova platform add android@13.0.0 --no-telemetry
           cordova build android --debug --no-telemetry
+
+          # Verifica presenza APK nei log
+          find . -name "*.apk" -ls
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
