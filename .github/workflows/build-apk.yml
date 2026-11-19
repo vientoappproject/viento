@@ -22,14 +22,18 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Build Cordova APK
+      - name: Install Android Tools & Cordova
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
           npm install -g cordova
+
+      - name: Build Cordova APK
+        run: |
           cordova create app com.vientoappproject.app VienTo --no-telemetry
           cp -r www/* app/www/
           cd app
-          cordova platform add android --no-telemetry
+          cordova platform add android@13.0.0 --no-telemetry
           cordova build android --debug --no-telemetry
 
       - name: Upload APK
@@ -37,3 +41,4 @@ jobs:
         with:
           name: viento-apk
           path: app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
