@@ -33,6 +33,19 @@ jobs:
           cordova create app com.vientoappproject.app VienTo --no-telemetry
           cp -r www/* app/www/
           cd app
+          cat << 'EOF' > config.xml
+          <?xml version='1.0' encoding='utf-8'?>
+          <widget id="com.vientoappproject.app" version="1.0.0" xmlns="http://w3.org" xmlns:cdv="http://apache.org">
+              <name>VienTo</name>
+              <description>La Red Social Sana</description>
+              <content src="index.html" />
+              <access origin="*" />
+              <allow-navigation href="*" />
+              <preference name="LoadUrlTimeoutValue" value="70000" />
+              <preference name="AndroidInsecureFileModeEnabled" value="true" />
+              <preference name="Orientation" value="portrait" />
+          </widget>
+          EOF
           cordova platform add android@14.0.1 --no-telemetry
           cordova build android --debug --no-telemetry
 
