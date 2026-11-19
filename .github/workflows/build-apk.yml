@@ -25,7 +25,27 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Create Native Package
+      - name: Initialize and Merge Project
         run: |
+          # Crea un progetto temporaneo pulito
+          cordova create temp_project com.vientoappproject.app VienTo
+          
+          # Sovrascrive con la nostra interfaccia grafica e il nostro passaporto
+          cp -r www/* temp_project/www/
+          cp config.xml temp_project/config.xml
+          
+          # Entra nella cartella corretta ed esegue la compilazione
+          cd temp_project
           cordova platform add android@12.0.0 --no-telemetry
           cordova build android --verbose --no-telemetry
+          
+          # Sposta l'APK finito nella cartella principale per renderlo scaricabile
+          cd ..
+          mkdir -p output
+          cp temp_project/platforms/android/app/build/outputs/apk/debug/app-debug.apk output/viento.apk
+
+      - name: Upload Finished APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: viento-application-package
+          path: output/viento.apk
