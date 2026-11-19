@@ -11,11 +11,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v5
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -25,7 +25,7 @@ jobs:
       - name: Install Android Tools & Cordova
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
           npm install -g cordova
 
       - name: Build Cordova APK
@@ -33,7 +33,7 @@ jobs:
           cordova create app com.vientoappproject.app VienTo --no-telemetry
           cp -r www/* app/www/
           cd app
-          cordova platform add android@13.0.0 --no-telemetry
+          cordova platform add android@14.0.1 --no-telemetry
           cordova build android --debug --no-telemetry
 
       - name: Upload APK
