@@ -60,9 +60,10 @@ jobs:
           EOF
 
           cordova platform add android@13.0.0 --no-telemetry
+          cordova prepare android --no-telemetry
 
-          # Forza la sostituzione diretta di tutte le icone grigie di Cordova con il tuo logo
-          if [ -f "www/icon.png" ]; then
+          # Sostituisce le icone predefinite solo dopo che cordova prepare ha creato res/
+          if [ -f "www/icon.png" ] && [ -d "platforms/android/app/src/main/res" ]; then
             find platforms/android/app/src/main/res/ -name "ic_launcher*.png" -exec cp www/icon.png {} \;
             find platforms/android/app/src/main/res/ -name "ic_launcher*.webp" -exec convert www/icon.png {} \;
           fi
