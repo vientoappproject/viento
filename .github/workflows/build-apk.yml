@@ -22,30 +22,21 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Image Tools
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
-
       - name: Install Android Tools & Cordova
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
           npm install -g cordova
 
-      - name: Build Cordova APK
+      - name: Build & Sign Cordova APK
         run: |
-          cordova create app com.vientoappproject.clean VienTo --no-telemetry
+          cordova create app com.vientoappproject.official VienTo --no-telemetry
           cp -r www/* app/www/
           cd app
 
-          # Converte l'immagine caricata in un vero PNG quadrato 512x512
-          IMG_FILE=$(ls www/*.{png,jpg,jpeg,webp} 2>/dev/null | head -n 1)
-          if [ -n "$IMG_FILE" ]; then
-            convert "$IMG_FILE" -resize 512x512! PNG32:www/icon.png
-          fi
-
           cat << 'EOF' > config.xml
           <?xml version='1.0' encoding='utf-8'?>
-          <widget id="com.vientoappproject.clean" version="1.0.2" xmlns="http://w3.org" xmlns:cdv="http://apache.org">
+          <widget id="com.vientoappproject.official" version="1.0.3" xmlns="http://w3.org" xmlns:cdv="http://apache.org" xmlns:android="http://android.com">
               <name>VienTo</name>
               <description>La Red Social Sana</description>
               <content src="index.html" />
@@ -55,23 +46,31 @@ jobs:
               <preference name="hostname" value="localhost" />
               <preference name="LoadUrlTimeoutValue" value="70000" />
               <preference name="Orientation" value="portrait" />
+              <platform name="android">
+                  <config-file target="app/src/main/AndroidManifest.xml" parent="/*">
+                      <uses-permission android:name="android.permission.INTERNET" />
+                      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+                      <uses-permission android:name="android.permission.CAMERA" />
+                      <uses-permission android:name="android.permission.RECORD_AUDIO" />
+                      <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+                      <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+                  </config-file>
+              </platform>
           </widget>
           EOF
 
           cordova platform add android@13.0.0 --no-telemetry
-          cordova prepare android --no-telemetry
+          cordova build android --release --no-telemetry
 
-          # Sostituisce direttamente le icone di sistema Android dopo prepare
-          if [ -f "www/icon.png" ] && [ -d "platforms/android/app/src/main/res" ]; then
-            find platforms/android/app/src/main/res/ -name "ic_launcher*.png" -exec cp www/icon.png {} \;
-            find platforms/android/app/src/main/res/ -name "ic_launcher*.webp" -exec convert www/icon.png {} \;
-          fi
+          # Genera certificato di firma reale, allinea e firma l'APK per Android 11-15
+          keytool -genkey -v -keystore viento.keystore -alias viento -keyalg RSA -keysize 2048 -validity 10000 -storepass viento2026 -keypass viento2026 -dname "CN=VienTo, OU=Comuna, O=AbyaYala, L=Naples, S=IT, C=IT"
+          $ANDROID_HOME/build-tools/34.0.0/zipalign -v -p 4 platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk viento-aligned.apk
+          $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks viento.keystore --ks-pass pass:viento2026 --key-pass pass:viento2026 --out viento-signed.apk viento-aligned.apk
+          $ANDROID_HOME/build-tools/34.0.0/apksigner verify --verbose viento-signed.apk
 
-          cordova build android --debug --no-telemetry -- --stacktrace
-
-      - name: Upload APK
+      - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
           name: viento-apk
-          path: "**/app-debug.apk"
+          path: app/viento-signed.apk
           if-no-files-found: error
