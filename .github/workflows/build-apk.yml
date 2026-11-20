@@ -34,13 +34,12 @@ jobs:
           cp -r www/* app/www/
           cd app
 
-          # Rinomina automaticamente qualsiasi immagine caricata in www/ in icon.png
+          # Converte realmente qualsiasi immagine in un vero PNG quadrato 512x512 compatibile con Android
           IMG_FILE=$(ls www/*.{png,jpg,jpeg,webp} 2>/dev/null | head -n 1)
-          if [ -n "$IMG_FILE" ] && [ "$IMG_FILE" != "www/icon.png" ]; then
-            cp "$IMG_FILE" www/icon.png
+          if [ -n "$IMG_FILE" ]; then
+            convert "$IMG_FILE" -resize 512x512! PNG32:www/icon.png
           fi
 
-          # Genera config.xml con permessi Android per fotocamera, audio e file
           cat << 'EOF' > config.xml
           <?xml version='1.0' encoding='utf-8'?>
           <widget id="com.vientoappproject.app" version="1.0.0" xmlns="http://w3.org" xmlns:cdv="http://apache.org" xmlns:android="http://android.com">
@@ -67,7 +66,6 @@ jobs:
           </widget>
           EOF
 
-          # Installa i plugin compatibili con AndroidX prima di aggiungere la piattaforma
           cordova plugin add cordova-plugin-camera@8.0.0 --no-telemetry
           cordova plugin add cordova-plugin-media --no-telemetry
           cordova plugin add cordova-plugin-file --no-telemetry
@@ -75,7 +73,6 @@ jobs:
           cordova platform add android@13.0.0 --no-telemetry
           cordova build android --debug --no-telemetry
 
-          # Verifica presenza APK nei log
           find . -name "*.apk" -ls
 
       - name: Upload APK
