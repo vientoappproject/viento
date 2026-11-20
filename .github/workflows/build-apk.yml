@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Cordova APK
         run: |
-          cordova create app com.vientoappproject.viento VienTo --no-telemetry
+          cordova create app com.vientoappproject.clean VienTo --no-telemetry
           cp -r www/* app/www/
           cd app
 
@@ -45,7 +45,7 @@ jobs:
 
           cat << 'EOF' > config.xml
           <?xml version='1.0' encoding='utf-8'?>
-          <widget id="com.vientoappproject.viento" version="1.0.1" xmlns="http://w3.org" xmlns:cdv="http://apache.org">
+          <widget id="com.vientoappproject.clean" version="1.0.2" xmlns="http://w3.org" xmlns:cdv="http://apache.org">
               <name>VienTo</name>
               <description>La Red Social Sana</description>
               <content src="index.html" />
@@ -59,11 +59,14 @@ jobs:
           </widget>
           EOF
 
-          cordova plugin add cordova-plugin-camera@8.0.0 --no-telemetry
-          cordova plugin add cordova-plugin-media --no-telemetry
-          cordova plugin add cordova-plugin-file --no-telemetry
-
           cordova platform add android@13.0.0 --no-telemetry
+
+          # Forza la sostituzione diretta di tutte le icone grigie di Cordova con il tuo logo
+          if [ -f "www/icon.png" ]; then
+            find platforms/android/app/src/main/res/ -name "ic_launcher*.png" -exec cp www/icon.png {} \;
+            find platforms/android/app/src/main/res/ -name "ic_launcher*.webp" -exec convert www/icon.png {} \;
+          fi
+
           cordova build android --debug --no-telemetry
 
       - name: Upload APK
