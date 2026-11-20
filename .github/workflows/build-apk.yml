@@ -49,7 +49,6 @@ jobs:
               <name>VienTo</name>
               <description>La Red Social Sana</description>
               <content src="index.html" />
-              <icon src="www/icon.png" />
               <access origin="*" />
               <allow-navigation href="*" />
               <preference name="scheme" value="https" />
@@ -62,13 +61,13 @@ jobs:
           cordova platform add android@13.0.0 --no-telemetry
           cordova prepare android --no-telemetry
 
-          # Sostituisce le icone predefinite solo dopo che cordova prepare ha creato res/
+          # Sostituisce direttamente le icone di sistema Android dopo prepare
           if [ -f "www/icon.png" ] && [ -d "platforms/android/app/src/main/res" ]; then
             find platforms/android/app/src/main/res/ -name "ic_launcher*.png" -exec cp www/icon.png {} \;
             find platforms/android/app/src/main/res/ -name "ic_launcher*.webp" -exec convert www/icon.png {} \;
           fi
 
-          cordova build android --debug --no-telemetry
+          cordova build android --debug --no-telemetry -- --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
